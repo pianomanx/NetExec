@@ -731,7 +731,10 @@ class nfs(connection):
                 read_perm, write_perm, exec_perm = self.get_permissions(item["name_handle"]["handle"]["data"])
                 perms = f"{is_dir}{'r' if read_perm else '-'}{'w' if write_perm else '-'}{'x' if exec_perm else '-'}"
                 file_size = convert_size(item["name_attributes"]["attributes"]["size"])
-            self.logger.highlight(f"{uid:<11}{perms:<7}{file_size:<14}{path.rstrip('/') + '/' + item['name'].decode()}")
+            try:
+                self.logger.highlight(f"{uid:<11}{perms:<7}{file_size:<14}{path.rstrip('/') + '/' + item['name'].decode()}")
+            except UnicodeDecodeError as e:
+                self.logger.highlight(f"{uid:<11}{perms:<7}{file_size:<14}{path.rstrip('/') + '/' + item['name'].decode('CP437')}")
 
     def format_directory(self, raw_directory):
         """Convert the chained directory entries to a list of the entries"""
