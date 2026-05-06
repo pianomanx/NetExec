@@ -733,7 +733,7 @@ class nfs(connection):
                 file_size = convert_size(item["name_attributes"]["attributes"]["size"])
             try:
                 self.logger.highlight(f"{uid:<11}{perms:<7}{file_size:<14}{path.rstrip('/') + '/' + item['name'].decode()}")
-            except UnicodeDecodeError as e:
+            except UnicodeDecodeError:
                 self.logger.highlight(f"{uid:<11}{perms:<7}{file_size:<14}{path.rstrip('/') + '/' + item['name'].decode('CP437')}")
 
     def format_directory(self, raw_directory):
