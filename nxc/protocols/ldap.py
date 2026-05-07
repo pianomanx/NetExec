@@ -1365,24 +1365,21 @@ class ldap(connection):
         return str_hash
 
     def gmsa_convert_id(self):
-        if self.args.gmsa_convert_id:
-            if len(self.args.gmsa_convert_id) != 64:
-                self.logger.fail("Length of the gmsa id not correct :'(")
-            else:
-                # getting the gmsa account
-                gmsa_accounts = self.search(
-                    searchFilter="(objectClass=msDS-GroupManagedServiceAccount)",
-                    attributes=["sAMAccountName"],
-                )
-                gmsa_accounts_parsed = parse_result_attributes(gmsa_accounts)
-                self.logger.debug(f"Total of records returned {len(gmsa_accounts_parsed):d}")
-
-                for acc in gmsa_accounts_parsed:
-                    if self.decipher_gmsa_name(self.domain.split(".")[0], acc["sAMAccountName"].rstrip("$")) == self.args.gmsa_convert_id:
-                        self.logger.highlight(f"Account: {acc['sAMAccountName']:<20} ID: {self.args.gmsa_convert_id}")
-                        break
+        if len(self.args.gmsa_convert_id) != 64:
+            self.logger.fail("Length of the gmsa id not correct :'(")
         else:
-            self.logger.fail("No string provided :'(")
+            # getting the gmsa account
+            gmsa_accounts = self.search(
+                searchFilter="(objectClass=msDS-GroupManagedServiceAccount)",
+                attributes=["sAMAccountName"],
+            )
+            gmsa_accounts_parsed = parse_result_attributes(gmsa_accounts)
+            self.logger.debug(f"Total of records returned {len(gmsa_accounts_parsed):d}")
+
+            for acc in gmsa_accounts_parsed:
+                if self.decipher_gmsa_name(self.domain.split(".")[0], acc["sAMAccountName"].rstrip("$")) == self.args.gmsa_convert_id:
+                    self.logger.highlight(f"Account: {acc['sAMAccountName']:<20} ID: {self.args.gmsa_convert_id}")
+                    break
 
     def gmsa_decrypt_lsa(self):
         if self.args.gmsa_decrypt_lsa:
