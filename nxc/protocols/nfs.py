@@ -130,18 +130,22 @@ class nfs(connection):
                 if program["program"] == NFS_PROGRAM:
                     self.nfs_versions.add(program["version"])
         except Exception as e:
-            self.logger.debug(f"Error checking NFS version: {self.host} {e}")
+            self.logger.fail(f"Error checking NFS version: {self.host} {e}")
 
         # Connect to NFS
-        nfs_port = self.portmap.getport(NFS_PROGRAM, NFS_V3)
-        self.nfs3 = NFSv3(self.host, nfs_port, self.args.nfs_timeout, self.auth)
-        self.nfs3.connect()
-        # Check if root escape is possible
-        if NFS_V3 in self.nfs_versions:
-            self.root_escape = self.try_root_escape()
-        else:
-            self.logger.debug("NFSv3 not supported, skipping root escape check")
-        self.nfs3.disconnect()
+        try:
+            nfs_port = self.portmap.getport(NFS_PROGRAM, NFS_V3)
+            if nfs_port:
+                self.nfs3 = NFSv3(self.host, nfs_port, self.args.nfs_timeout, self.auth)
+                self.nfs3.connect()
+                # Check if root escape is possible
+                if NFS_V3 in self.nfs_versions:
+                    self.root_escape = self.try_root_escape()
+                else:
+                    self.logger.debug("NFSv3 not supported, skipping root escape check")
+                self.nfs3.disconnect()
+        except Exception as e:
+            self.logger.fail(f"Failed to connect to NFS3 host: {e}")
 
     def print_host_info(self):
         root_escape_str = colored(f"root escape:{self.root_escape}", host_info_colors[1 if self.root_escape else 0], attrs=["bold"])
@@ -727,7 +731,10 @@ class nfs(connection):
                 read_perm, write_perm, exec_perm = self.get_permissions(item["name_handle"]["handle"]["data"])
                 perms = f"{is_dir}{'r' if read_perm else '-'}{'w' if write_perm else '-'}{'x' if exec_perm else '-'}"
                 file_size = convert_size(item["name_attributes"]["attributes"]["size"])
-            self.logger.highlight(f"{uid:<11}{perms:<7}{file_size:<14}{path.rstrip('/') + '/' + item['name'].decode()}")
+            try:
+                self.logger.highlight(f"{uid:<11}{perms:<7}{file_size:<14}{path.rstrip('/') + '/' + item['name'].decode()}")
+            except UnicodeDecodeError:
+                self.logger.highlight(f"{uid:<11}{perms:<7}{file_size:<14}{path.rstrip('/') + '/' + item['name'].decode('CP437')}")
 
     def format_directory(self, raw_directory):
         """Convert the chained directory entries to a list of the entries"""
