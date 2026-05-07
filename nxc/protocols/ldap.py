@@ -1398,19 +1398,23 @@ class ldap(connection):
                     attributes=["sAMAccountName"],
                 )
                 gmsa_accounts_parsed = parse_result_attributes(gmsa_accounts)
+                sAMAccountName = ""
                 if gmsa_accounts_parsed:
                     self.logger.debug(f"Total of records returned {len(gmsa_accounts):d}")
 
                     for acc in gmsa_accounts_parsed:
                         if self.decipher_gmsa_name(self.domain.split(".")[0], acc["sAMAccountName"][:-1]) == gmsa_id:
-                            gmsa_id = acc["sAMAccountName"]
+                            sAMAccountName = acc["sAMAccountName"]
                             break
                 # Compute the password and keys
                 data = bytes.fromhex(gmsa_pass)
-                rc4, aes128, aes256 = self.gmsa_compute_secrets(data, gmsa_id)
-                self.logger.highlight(f"Account: {gmsa_id:<20} NTLM: {rc4}")
-                self.logger.highlight(f"Account: {gmsa_id:<20} aes128-cts-hmac-sha1-96: {aes128}")
-                self.logger.highlight(f"Account: {gmsa_id:<20} aes256-cts-hmac-sha1-96: {aes256}")
+                rc4, aes128, aes256 = self.gmsa_compute_secrets(data, sAMAccountName)
+                self.logger.highlight(f"Account: {sAMAccountName:<20} NTLM: {rc4}")
+                if not sAMAccountName:
+                    self.logger.fail("Could not find the GMSA account associated with the provided ID.")
+                else:
+                    self.logger.highlight(f"Account: {sAMAccountName:<20} aes128-cts-hmac-sha1-96: {aes128}")
+                    self.logger.highlight(f"Account: {sAMAccountName:<20} aes256-cts-hmac-sha1-96: {aes256}")
         else:
             self.logger.fail("No string provided :'(")
 
