@@ -1394,7 +1394,6 @@ class ldap(connection):
                 gmsa_id, gmsa_pass = self.args.gmsa_decrypt_lsa.split("_")[4].split(":")
                 # getting the gmsa account
                 gmsa_accounts = self.search(
-                    searchBase=self.baseDN,
                     searchFilter="(objectClass=msDS-GroupManagedServiceAccount)",
                     attributes=["sAMAccountName"],
                 )
