@@ -1342,9 +1342,9 @@ class ldap(connection):
         """Generate RC4, AES128, and AES256 keys for a GMSA account based on the provided password data and username."""
         blob = MSDS_MANAGEDPASSWORD_BLOB()
         blob.fromString(password_data)
-        currentPassword = hexlify(blob["CurrentPassword"].rstrip(b"\x00")).decode()
+        current_password = hexlify(blob["CurrentPassword"].rstrip(b"\x00")).decode()
 
-        keys = generate_kerberos_keys(hex_pass=currentPassword, user=sAMAccountName, domain=self.targetDomain)
+        keys = generate_kerberos_keys(hex_pass=current_password, user=sAMAccountName, domain=self.targetDomain)
         rc4 = hexlify(keys[constants.EncryptionTypes.rc4_hmac.value].contents).decode()
         aes128 = hexlify(keys[constants.EncryptionTypes.aes128_cts_hmac_sha1_96.value].contents).decode()
         aes256 = hexlify(keys[constants.EncryptionTypes.aes256_cts_hmac_sha1_96.value].contents).decode()
