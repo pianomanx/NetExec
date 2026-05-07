@@ -1409,8 +1409,8 @@ class ldap(connection):
                 data = bytes.fromhex(gmsa_pass)
                 rc4, aes128, aes256 = self.gmsa_compute_secrets(data, gmsa_id)
                 self.logger.highlight(f"Account: {gmsa_id:<20} NTLM: {rc4}")
-                self.logger.highlight(f"Account: {gmsa_id:<20} aes256-cts-hmac-sha1-96: {aes256}")
                 self.logger.highlight(f"Account: {gmsa_id:<20} aes128-cts-hmac-sha1-96: {aes128}")
+                self.logger.highlight(f"Account: {gmsa_id:<20} aes256-cts-hmac-sha1-96: {aes256}")
         else:
             self.logger.fail("No string provided :'(")
 
