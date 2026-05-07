@@ -1407,6 +1407,8 @@ class ldap(connection):
             else:
                 self.logger.highlight(f"Account: {sAMAccountName:<20} aes128-cts-hmac-sha1-96: {aes128}")
                 self.logger.highlight(f"Account: {sAMAccountName:<20} aes256-cts-hmac-sha1-96: {aes256}")
+        else:
+            self.logger.fail("The provided string does not appear to be a valid GMSA LSA secret.")
 
     def pso(self):
         """
