@@ -1370,12 +1370,9 @@ class ldap(connection):
                 self.logger.fail("Length of the gmsa id not correct :'(")
             else:
                 # getting the gmsa account
-                search_filter = "(objectClass=msDS-GroupManagedServiceAccount)"
-                gmsa_accounts = self.ldap_connection.search(
-                    searchBase=self.baseDN,
-                    searchFilter=search_filter,
+                gmsa_accounts = self.search(
+                    searchFilter="(objectClass=msDS-GroupManagedServiceAccount)",
                     attributes=["sAMAccountName"],
-                    sizeLimit=0,
                 )
                 gmsa_accounts_parsed = parse_result_attributes(gmsa_accounts)
                 if gmsa_accounts_parsed:
@@ -1403,7 +1400,7 @@ class ldap(connection):
                     self.logger.debug(f"Total of records returned {len(gmsa_accounts):d}")
 
                     for acc in gmsa_accounts_parsed:
-                        if self.decipher_gmsa_name(self.domain.split(".")[0], acc["sAMAccountName"][:-1]) == gmsa_id:
+                        if self.decipher_gmsa_name(self.domain.split(".")[0], acc["sAMAccountName"].rstrip("$")) == gmsa_id:
                             sAMAccountName = acc["sAMAccountName"]
                             break
                 # Compute the password and keys
