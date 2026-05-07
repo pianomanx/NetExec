@@ -1375,13 +1375,12 @@ class ldap(connection):
                     attributes=["sAMAccountName"],
                 )
                 gmsa_accounts_parsed = parse_result_attributes(gmsa_accounts)
-                if gmsa_accounts_parsed:
-                    self.logger.debug(f"Total of records returned {len(gmsa_accounts_parsed):d}")
+                self.logger.debug(f"Total of records returned {len(gmsa_accounts_parsed):d}")
 
-                    for acc in gmsa_accounts_parsed:
-                        if self.decipher_gmsa_name(self.domain.split(".")[0], acc["sAMAccountName"][:-1]) == self.args.gmsa_convert_id:
-                            self.logger.highlight(f"Account: {acc['sAMAccountName']:<20} ID: {self.args.gmsa_convert_id}")
-                            break
+                for acc in gmsa_accounts_parsed:
+                    if self.decipher_gmsa_name(self.domain.split(".")[0], acc["sAMAccountName"].rstrip("$")) == self.args.gmsa_convert_id:
+                        self.logger.highlight(f"Account: {acc['sAMAccountName']:<20} ID: {self.args.gmsa_convert_id}")
+                        break
         else:
             self.logger.fail("No string provided :'(")
 
